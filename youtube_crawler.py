@@ -39,6 +39,17 @@ def get_authenticated_service():
     return build(API_SERVICE_NAME, API_VERSION, credentials = credentials)
 
 
+def write_to_csv(comments):
+    with open('datas/youtube_comments.csv', 'w') as comments_file:
+        comments_file.writelines('Comment\n')
+        #comments_writer = csv.writer(comments_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL) # 하나하나 토큰화 나중에 할거면 애초에 이렇게 저장하는거도 좋은 방법인듯(한음절씩 저장됨)
+        # comments_writer.writerow('Comment')
+        for row in comments:
+            # convert the tuple to a list and write to the output file
+            comments_file.writelines("\""+row+"\"")
+            comments_file.writelines('\n')
+            #comments_writer.writerow(row)
+
 
 def get_video_comments(service, **kwargs):
     comments = []
@@ -53,10 +64,11 @@ def get_video_comments(service, **kwargs):
         if 'nextPageToken' in results:
             kwargs['pageToken'] = results['nextPageToken']
             results = service.commentThreads().list(**kwargs).execute()
+            
         else:
             break
  
-    return comments
+    write_to_csv(comments)
 
 
 
@@ -66,6 +78,6 @@ if __name__ == '__main__':
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     service = get_authenticated_service()
     video_id = input('Enter a video ID: ')
-    get_video_comments(service, part='snippet', videoId=video_id, eventType='completed', textFormat='plainText')
+    get_video_comments(service, part='snippet', videoId=video_id, textFormat='plainText')
  
 
