@@ -38,6 +38,14 @@ def get_authenticated_service():
  
     return build(API_SERVICE_NAME, API_VERSION, credentials = credentials)
 
+#영어 댓글 너무 많으면 거른다... 영어인지 간단 체크
+def is_english_comment(c):
+    if(ord(c) >= 65 and ord(c) <= 90):                  
+        return True
+    elif(ord(c) >= 97 and ord(c) <= 122):               
+        return True
+    else:
+        return False
 
 def write_to_csv(comments):
     with open('datas/youtube_comments2.csv', 'w') as comments_file:
@@ -59,7 +67,7 @@ def get_video_comments(service, **kwargs):
     while results and comments_cnt<5000:
         for item in results['items']:
             comment = item['snippet']['topLevelComment']['snippet']['textDisplay']
-            if len(comment)<=500:
+            if not is_english_comment(comment[0]) and len(comment)<=500:
                 comments.append(comment)
                 comments_cnt=comments_cnt+1
  
@@ -84,9 +92,8 @@ if __name__ == '__main__':
     try:
         get_video_comments(service, part='snippet', videoId=video_id, order='relevance', textFormat='plainText')
     
-    except HttpError, e:
-        print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
-    else:
-        print "Done\n"
+    except HttpError as e:
+        print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
+   
  
 
