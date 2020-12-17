@@ -40,7 +40,7 @@ def get_authenticated_service():
 
 
 def write_to_csv(comments):
-    with open('datas/youtube_comments.csv', 'w') as comments_file:
+    with open('datas/youtube_comments2.csv', 'w') as comments_file:
         comments_file.writelines('Comment\n')
         #comments_writer = csv.writer(comments_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL) # 하나하나 토큰화 나중에 할거면 애초에 이렇게 저장하는거도 좋은 방법인듯(한음절씩 저장됨)
         # comments_writer.writerow('Comment')
@@ -54,11 +54,14 @@ def write_to_csv(comments):
 def get_video_comments(service, **kwargs):
     comments = []
     results = service.commentThreads().list(**kwargs).execute()
- 
-    while results:
+    
+    comments_cnt=0
+    while results and comments_cnt<5000:
         for item in results['items']:
             comment = item['snippet']['topLevelComment']['snippet']['textDisplay']
-            comments.append(comment)
+            if len(comment)<=500:
+                comments.append(comment)
+                comments_cnt=comments_cnt+1
  
         # Check if another page exists
         if 'nextPageToken' in results:
@@ -78,6 +81,12 @@ if __name__ == '__main__':
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     service = get_authenticated_service()
     video_id = input('Enter a video ID: ')
-    get_video_comments(service, part='snippet', videoId=video_id, textFormat='plainText')
+    try:
+        get_video_comments(service, part='snippet', videoId=video_id, order='relevance', textFormat='plainText')
+    
+    except HttpError, e:
+        print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
+    else:
+        print "Done\n"
  
 
