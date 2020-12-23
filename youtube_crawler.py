@@ -48,7 +48,7 @@ def is_english_comment(c):
         return False
 
 def write_to_csv(comments):
-    with open('datas/youtube_comments2.csv', 'w') as comments_file:
+    with open('datas/youtube_comments4.csv', 'w') as comments_file:
         comments_file.writelines('Comment\n')
         #comments_writer = csv.writer(comments_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL) # 하나하나 토큰화 나중에 할거면 애초에 이렇게 저장하는거도 좋은 방법인듯(한음절씩 저장됨)
         # comments_writer.writerow('Comment')
